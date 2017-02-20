@@ -1,0 +1,139 @@
+{% extends "layout.html" %} 
+
+{% block body %}
+<div class="container-fluid">
+  <div class="body advert">
+    <!-- 面包屑 -->
+    <ol class="breadcrumb">
+      <li><a href="javascript:;">广告管理</a></li>
+      <li class="active">广告列表</li>
+    </ol>
+    <div class="page-title">
+      <a href="/advert/add" class="btn btn-success btn-sm pull-right">添加广告</a>
+    </div>
+    <div class="panel panel-default">
+      <div class="panel-body">
+        <form action="" class="form-inline">
+          <select name="" class="form-control input-sm">
+            <option value="">按年龄</option>
+          </select>
+          <select name="" class="form-control input-sm">
+            <option value="">按性别</option>
+          </select>
+          <select name="" class="form-control input-sm">
+            <option value="">按地区</option>
+          </select>
+          <select name="" class="form-control input-sm">
+            <option value="">按日期</option>
+          </select>
+          <button class="btn btn-success btn-sm">筛选</button>
+        </form>
+      </div>
+      <table class="table table-bordered">
+        <thead>
+          <tr>
+            <td>序号</td>
+            <th>标题</th>
+            <th>图片</th>
+            <th>链接</th>
+            <th>开始时间</th>
+            <th>结束时间</th>
+            <th>点击次数</th>
+            <th>操作</th>
+          </tr>
+        </thead>
+        <tbody id="tbody"></tbody>
+      </table>
+    </div>
+    <!-- 分页 -->
+    <ul id="pagination" class="pagination pull-right">
+    </ul>
+  </div>
+</div>
+<script type="text/template" id="tpl">
+  <% adverts.forEach(function (item, index) { %>
+    <tr>
+      <td><%= index + 1 %></td>
+      <td><%= item.title %></td>
+      <td>
+        <img src="/public/uploads/<%= item.image %>" style="width: 100px;" alt="">
+      </td>
+      <td><%= item.link %></td>
+      <td><%= item.start_time %></td>
+      <td><%= item.end_time %></td>
+      <td>1</td>
+      <td>
+        <a href="/advert/edit/<%= item._id %>" class="btn btn-info btn-xs">编辑</a>
+        <a href="/advert/remove/<%= item._id %>" class="btn btn-danger btn-xs remove">删除</a>
+      </td>
+    </tr>
+  <% }) %>
+</script>
+{% endblock %} 
+
+{% block script %}
+<script src="/node_modules/art-template/dist/template-native.js"></script>
+<script src="/node_modules/twbs-pagination/jquery.twbsPagination.js"></script>
+<script>
+  // 异步无刷新删除
+  $('body').on('click', '.remove', function (e) {
+    if (!window.confirm('你确定要删除吗？')) {
+      return false
+    }
+    $.ajax({
+      url: $(this).attr('href'),
+      type: 'get',
+      dataType: 'json'
+    }).then(data => {
+      if (data.err_code === 0) {
+        // 删除成功，重新加载当前页数据
+        loadData($('#pagination').twbsPagination('getCurrentPage'))
+      }
+    })
+    return false
+  })
+
+  // 根据总记录数配置分页插件
+  var pageSize = 5
+  $.ajax({
+    url: '/advert/count',
+    type: 'get',
+    success: function (data) {
+      if (data.err_code === 0) {
+        $('#pagination').twbsPagination({
+          totalPages: Math.ceil(data.result / pageSize), // 告诉这个插件一共有多少页，它会自动帮你生成页码
+          visiblePages: 7, // 视图可见页码
+          first: '首页',
+          prev: '上一页',
+          next: '下一页',
+          last: '最后一页',
+          onPageClick: function (event, page) { // 当点击其中某个页码的时候要执行的回调处理函数，所谓的异步无刷新分页，本质上就是当点击某一页的时候，发起一个 ajax 异步请求，获取当前页码对应的数据，然后在客户端做渲染
+            loadData(page)
+          }
+        });
+      }
+    }
+  })
+
+  // 根据页码加载数据
+  function loadData(page) {
+    $.ajax({
+      url: '/advert/list',
+      type: 'get',
+      data: {
+        page: page,
+        pageSize: pageSize
+      },
+      dataType: 'json',
+      success: function (data) {
+        if (data.err_code === 0) {
+          var htmlStr = template('tpl', {
+            adverts: data.result
+          })
+          $('#tbody').html(htmlStr)
+        }
+      }
+    })
+  }
+</script>
+{% endblock %}

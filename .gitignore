@@ -1,0 +1,7 @@
+.idea
+node_modules
+demo
+yarn.lock
+dist
+public/uploads
+edu.rar

@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>学IT - 后台管理系统</title>
+  <link rel="stylesheet" href="/node_modules/bootstrap/dist/css/bootstrap.css">
+  <link rel="stylesheet" href="/node_modules/font-awesome/css/font-awesome.css">
+  <link rel="stylesheet" href="/public/less/index.css">
+</head>
+
+<body>
+  <!-- 登录 -->
+  <div class="login">
+    <div class="login-wrap">
+      <div class="avatar">
+        <img src="/public/uploads/monkey.png" class="img-circle" alt="">
+      </div>
+      <form action="/register" method="post" class="col-md-offset-1 col-md-10">
+        <div class="input-group input-group-lg">
+          <span class="input-group-addon">
+                        <i class="fa fa-user"></i>
+                    </span>
+          <input type="text" name="username" class="form-control" placeholder="用户名">
+        </div>
+        <div class="input-group input-group-lg">
+          <span class="input-group-addon">
+                        <i class="fa fa-user"></i>
+                    </span>
+          <input type="text" name="email" class="form-control" placeholder="邮箱">
+        </div>
+        <div class="input-group input-group-lg">
+          <span class="input-group-addon">
+                        <i class="fa fa-key"></i>
+                    </span>
+          <input type="password" name="password" class="form-control" placeholder="密码">
+        </div>
+        <button type="submit" class="btn btn-lg btn-primary btn-block">注 册</button>
+      </form>
+    </div>
+  </div>
+  <script src="/node_modules/jquery/dist/jquery.js"></script>
+  <script src="/node_modules/bootstrap/dist/js/bootstrap.js"></script>
+  <script>
+    $('form').on('submit', function (e) {
+      $.ajax({
+        url: $(this).attr('action'),
+        type: $(this).attr('method'),
+        data: $(this).serialize(),
+        dataType: 'json', // 如果指定为 json 则自动将服务器返回的数据通过 JSON.parse() 转为一个对象交给你的 success 中指定的回调处理函数参数，如果不指定，默认就是普通字符串
+      }).then(data => {
+        if (data.err_code === 0) {
+          window.location.href = '/login'
+        } else if (err_code === 1) {
+          window.alert('用户名被占用，请重新注册')
+        }
+      })
+      return false
+    })
+  </script>
+</body>
+
+</html>
