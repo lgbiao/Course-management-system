@@ -7,5 +7,4 @@
 * JavaScript
 * bootstrap
 * nodejs
-  * express
 * mongodb
